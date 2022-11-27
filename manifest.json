@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "PKP Intercity Add to calendar",
+  "version": "1.0",
+  "description": "Adds a button to the PKP Intercity website to add the trip to your calendar",
+  "content_scripts": [
+    {
+      "matches": ["https://bilet.intercity.pl/lista_biletow.jsp*"],
+      "js": ["add-to-calendar-button/add-to-calendar-button.js", "pdf-js/pdf.js", "pdf-js/pdf.worker.js", "content.js"],
+      "css": ["add-to-calendar-button/add-to-calendar-button.css"]
+    }
+  ]
+}
