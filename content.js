@@ -26,12 +26,12 @@ document.querySelectorAll('#print_area > div.content > div > div > form > div.li
 
         const ticketUrl = `https://bilet.intercity.pl/BiletPDF?bilet=${ticketNumber}`;
 
-        let seat, wagonNumber, legend;
+        let seat, wagon, legend;
 
         await pdfjsLib.getDocument(ticketUrl).promise.then(async function (pdf) {
             await pdf.getPage(1).then(async function (page) {
                 await page.getTextContent().then(function (textContent) {
-                    wagonNumber = textContent.items[49].str;
+                    wagon = textContent.items[49].str + textContent.items[51].str;
                     seat = textContent.items[53].str + textContent.items[55].str;
                     legend = textContent.items[56].str.replace('LEGENDA: ', 'Legenda: ');
                 });
@@ -42,7 +42,7 @@ document.querySelectorAll('#print_area > div.content > div > div > form > div.li
 
         atcb_action({
             'name': `Podróż ${departureStation} - ${arrivalStation}`,
-            'description': `Numer miejsca: ${seat}<br>Numer wagonu: ${wagonNumber}<br>Numer pociągu: ${connectionId}<br>Link do biletu: [url]${ticketUrl}[/url]<br>${legend}`,
+            'description': `Numer miejsca: ${seat}<br>Numer wagonu: ${wagon}<br>Numer pociągu: ${connectionId}<br>Link do biletu: [url]${ticketUrl}[/url]<br>${legend}`,
             'startDate': departureDate,
             'endDate': arrivalDate,
             'startTime': departureTime,
