@@ -26,14 +26,27 @@ document.querySelectorAll('#print_area > div.content > div > div > form > div.li
 
         const ticketUrl = `https://bilet.intercity.pl/BiletPDF?bilet=${ticketNumber}`;
 
-        let seat, wagon, legend;
+        let seats = '', wagon, legend;
 
         await pdfjsLib.getDocument(ticketUrl).promise.then(async function (pdf) {
             await pdf.getPage(1).then(async function (page) {
                 await page.getTextContent().then(function (textContent) {
                     wagon = textContent.items[49].str + textContent.items[51].str;
-                    seat = textContent.items[53].str + textContent.items[55].str;
-                    legend = textContent.items[56].str.replace('LEGENDA: ', 'Legenda: ');
+
+                    let lookingForSeats = true;
+
+                    for (let i = 53; lookingForSeats; i += 4) {
+                        seats += textContent.items[i].str + textContent.items[i + 2].str + ' ';
+
+                        lookingForSeats = seats.endsWith(', ');
+                    }
+
+                    for (let i in textContent.items) {
+                        if (textContent.items[i].str.startsWith('LEGENDA:')) {
+                            legend = textContent.items[i].str.replace('LEGENDA:', 'Legenda:');
+                            break;
+                        }
+                    }
                 });
             });
         }, function (reason) {
@@ -42,7 +55,7 @@ document.querySelectorAll('#print_area > div.content > div > div > form > div.li
 
         atcb_action({
             'name': `Podróż ${departureStation} - ${arrivalStation}`,
-            'description': `Numer miejsca: ${seat}<br>Numer wagonu: ${wagon}<br>Numer pociągu: ${connectionId}<br>Link do biletu: [url]${ticketUrl}[/url]<br>${legend}`,
+            'description': `Numery miejsc: ${seats}<br>Numer wagonu: ${wagon}<br>Numer pociągu: ${connectionId}<br>Link do biletu: [url]${ticketUrl}[/url]<br>${legend}`,
             'startDate': departureDate,
             'endDate': arrivalDate,
             'startTime': departureTime,
